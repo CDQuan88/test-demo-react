@@ -1,48 +1,54 @@
-import React from 'react'
+import React, { useState,useEffect } from 'react'
 import './DisplayInfo.scss'
 import logo from './../logo.svg';
-class DisplayInfo extends React.Component {
 
-    state = {
-        isShowListUser: true
+const DisplayInfo = (props) => {
+
+    const { listUsers } = props;
+    const [isShowHideListUser, setShowHideListUser] = useState(true);
+    const handleShowHideListUser = () => {
+        setShowHideListUser(!isShowHideListUser);
     }
 
-    handleShowHide = () => {
-        this.setState({
-            isShowListUser: !this.state.isShowListUser
-        })
-    }
+    useEffect( 
+        () => {
+        if(listUsers.length === 0){
+            alert('Deleted all the user')
+        }
+        console.log('>>> call me useEffect')
+    },[listUsers]
+    );
 
-    render() {
-        const { listUsers } = this.props;
-        return (
-            <div className='display-info-container'>
-                {/* <img src={logo} alt="LogoImage" /> */}
-                <div>
-                    <span onClick={() => { this.handleShowHide() }}>{this.state.isShowListUser ? "Hide list users" : "Show list users"}</span>
-                </div>
-                {this.state.isShowListUser &&
-                    <>
-
-                        {listUsers.map((user) => {
-                            return (
-                                <div className={+user.age > 18 ? 'green' : 'red'} key={user.id} >
-                                    <div>My name is: {user.name}</div>
-                                    <div>My age is: {user.age}</div>
-                                    <div>
-                                        <button onClick={() => this.props.handleDeleteUser(user.id)}>Delete</button>
-                                    </div>
-                                    <hr />
-                                </div>
-                            )
-                        })}
-
-                    </ >
-                }
+    return (
+        <div className='display-info-container'>
+            <div>
+                <span onClick={() => handleShowHideListUser()}>
+                    {isShowHideListUser ? "Hide list users" : "Show list users"}
+                </span>
             </div>
 
-        )
-    }
+            {isShowHideListUser &&
+                <>
+
+                    {listUsers.map((user) => {
+                        return (
+                            <div className={+user.age > 18 ? 'green' : 'red'} key={user.id} >
+                                <div>My name is: {user.name}</div>
+                                <div>My age is: {user.age}</div>
+                                <div>
+                                    <button onClick={() => props.handleDeleteUser(user.id)}>Delete</button>
+                                </div>
+                                <hr />
+                            </div>
+                        )
+                    })}
+
+                </ >
+            }
+        </div>
+
+    )
+
 }
 
 export default DisplayInfo;
