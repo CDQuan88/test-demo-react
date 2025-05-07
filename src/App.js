@@ -15,6 +15,9 @@ const App = () => {
           <Outlet />
         </div>
       </div>
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
   );
 };
