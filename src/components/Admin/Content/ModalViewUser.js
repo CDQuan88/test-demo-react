@@ -1,21 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { FcPlus } from "react-icons/fc";
 import { toast } from "react-toastify";
-import { postCreateNewUser } from "../../services/apiService";
-const ModalCreateUser = (props) => {
-  const { show, setShow } = props;
+import { putUpdateUser } from "../../services/apiService";
+import _ from "lodash";
+const ModalViewUser = (props) => {
+  const { show, setShow, dataUpdate } = props;
 
   const handleClose = () => {
     setShow();
-    setEmail("");
-    setPassword("");
-    setUsername("");
-    setRole("USER");
-    setImage("");
-    setPreviewImage("");
   };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -29,39 +25,17 @@ const ModalCreateUser = (props) => {
     }
   };
 
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-  };
-
-  const handleSubmitCreateUser = async () => {
-    //validate
-    if (!validateEmail(email)) {
-      toast.error("Email is not valid");
-      return;
+  useEffect(() => {
+    if (!_.isEmpty(dataUpdate)) {
+      setEmail(dataUpdate.email);
+      setUsername(dataUpdate.username);
+      setRole(dataUpdate.role);
+      setImage("");
+      if (dataUpdate.image) {
+        setPreviewImage(`data:image/png;base64,${dataUpdate.image}`);
+      }
     }
-    if (!password) {
-      toast.error("Password is required");
-      return;
-    }
-    if (!username) {
-      toast.error("Username is required");
-      return;
-    }
-
-    let data = await postCreateNewUser(email, password, username, role, image);
-    if (data && data.EC === 0) {
-      toast.success(data.EM);
-      handleClose();
-      props.setCurrentPage(1);
-      await props.fetchListUsersWithPaginate(1);
-    } else {
-      toast.error(data.EM);
-    }
-  };
+  }, [dataUpdate]);
 
   return (
     <>
@@ -73,7 +47,7 @@ const ModalCreateUser = (props) => {
         size="xl"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add new user</Modal.Title>
+          <Modal.Title>Update a user</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form className="row g-3">
@@ -83,6 +57,7 @@ const ModalCreateUser = (props) => {
                 onChange={(event) => setEmail(event.target.value)}
                 type="email"
                 className="form-control"
+                disabled
                 value={email}
               />
             </div>
@@ -91,8 +66,8 @@ const ModalCreateUser = (props) => {
               <input
                 type="password"
                 className="form-control"
+                disabled
                 onChange={(event) => setPassword(event.target.value)}
-                value={password}
               />
             </div>
             <div className="col-md-6">
@@ -101,6 +76,7 @@ const ModalCreateUser = (props) => {
                 type="text"
                 className="form-control"
                 value={username}
+                disabled
                 onChange={(event) => setUsername(event.target.value)}
               />
             </div>
@@ -110,13 +86,14 @@ const ModalCreateUser = (props) => {
                 className="form-select"
                 onChange={(event) => setRole(event.target.value)}
                 value={role}
+                disabled
               >
                 <option value="USER">USER</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
             </div>
             <div className="col-md-12">
-              <label className="form-label label-upload" htmlFor="labelUpload">
+              <label className="form-label label-upload">
                 <FcPlus />
                 Upload file image
               </label>
@@ -141,12 +118,9 @@ const ModalCreateUser = (props) => {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={() => handleSubmitCreateUser()}>
-            Save Changes
-          </Button>
         </Modal.Footer>
       </Modal>
     </>
   );
 };
-export default ModalCreateUser;
+export default ModalViewUser;
